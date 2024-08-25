@@ -2,6 +2,10 @@ class Board:
     def __init__(self, size=5):
         self.size = 5
         self.grid = [["." for _ in range(size)] for _ in range(size)]
+        self.current_player = None  # Keep track the current player
+
+    def set_current_player(self, player):
+        self.current_player = player
 
     def display(self):
         for row in self.grid:
@@ -25,7 +29,9 @@ class Board:
                 r, c = row + dr, col + dc
                 if 0 <= r < self.size and 0 <= c < self.size:
                     if self.grid[r][c] == opponent_stone:
+                        print("self.get_liberties: ", self.get_liberties(r, c))
                         if self.get_liberties(r, c) == 0:
+                            print("call remove stones!!!!!!!")
                             self.remove_stones(r, c)
 
             return True
@@ -90,5 +96,10 @@ class Board:
         self._collect_stones_to_remove(row, col, stone, visited, stones_to_remove)
 
         # Remove all collected stones
+        # Update the player's captured stones
         for r, c in stones_to_remove:
             self.grid[r][c] = "."
+        print("current_player: ", self.current_player)
+        if self.current_player:
+            print("Stones to remove: ", stones_to_remove)
+            self.current_player.capture_stones(len(stones_to_remove))
