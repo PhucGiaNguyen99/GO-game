@@ -1,5 +1,6 @@
 import unittest
 from go_game.board import Board
+from go_game.player import Player
 
 
 class TestBoard(unittest.TestCase):
@@ -127,6 +128,35 @@ class TestBoard(unittest.TestCase):
         self.board.place_stone(2, 3, "W")  # This should capture the black stone
 
         self.assertEqual(self.board.grid[2][2], ".")  # Black stone should be captured
+
+    def test_ko_rule(self):
+        self.board.set_current_player(self.player_black)
+        self.player_black.make_move(self.board, 2, 2)
+        self.player_white.make_move(self.board, 1, 2)
+        self.player_white.make_move(self.board, 3, 2)
+        self.player_white.make_move(self.board, 2, 1)
+        self.player_white.make_move(self.board, 2, 3)
+
+        # Black retakes the position
+        self.board.set_current_player(self.player_black)
+        self.player_black.make_move(self.board, 1, 3)
+        # Now White tries to make a Ko move
+        ko_move = self.player_white.make_move(self.board, 2, 2)
+        self.assertFalse(ko_move)
+
+    def test_single_point_territory(self):
+        # Black surrounds a single empty point
+        self.board.grid = [
+            [".", ".", ".", ".", "."],
+            [".", "B", "B", "B", "."],
+            [".", "B", ".", "B", "."],
+            [".", "B", "B", "B", "."],
+            [".", ".", ".", ".", "."],
+        ]
+        self.player_black = Player("B")
+        self.player_white = Player("W")
+        self.board.calculate_territory(self.player_black)
+        self.assertEqual(self.player_black.territory, 1)
 
 
 if __name__ == "__main__":
